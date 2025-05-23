@@ -1,5 +1,5 @@
+import { User } from 'src/auth/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-import { User } from '../auth/user.entity'; // assuming you have User entity
 
 @Entity()
 export class Order {

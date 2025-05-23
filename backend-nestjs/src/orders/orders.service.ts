@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './order.entity';
-import { CreateOrderDto } from './dto/create-order.dto';
 import { Kafka } from 'kafkajs';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -15,20 +15,20 @@ export class OrderService {
   ) {
     const kafka = new Kafka({
       clientId: 'order-service',
-      brokers: ['localhost:9092'], // change if needed
+      brokers: ['localhost:9092'],
     });
     this.kafkaProducer = kafka.producer();
     this.kafkaProducer.connect();
   }
 
   async placeOrder(userId: number, createOrderDto: CreateOrderDto): Promise<Order> {
+    console.log("okkk" , userId);
     const order = this.orderRepository.create({
       user: { id: userId },
       amount: createOrderDto.amount,
     });
     await this.orderRepository.save(order);
 
-    // Emit Kafka event
     await this.kafkaProducer.send({
       topic: 'orders',
       messages: [
@@ -51,4 +51,17 @@ export class OrderService {
       order: { createdAt: 'DESC' },
     });
   }
+
+    async findOneById(id: number) {
+    const order = await this.orderRepository.findOne({
+    where: { order_id: id },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return order;
+  }
+
 }

@@ -15,8 +15,3 @@ export class AuthController {
     return this.authService.verifyOtp(body.mobile, body.otp);
   }
 }
-
-// Attaching curl for reference.
-// curl --location 'http://localhost:3000/auth/request-otp' \
-// --header 'Content-Type: application/json' \
-// --data '{"mobile":"9068824149"}'
